@@ -163,78 +163,11 @@ nodemon server.js
 Server running on http://localhost:3000
 
 
-### API endpoints 
-- User Management
-‎
-‎Features: Create, read, update, delete users (CRUD)
-‎
-‎Authentication: JWT-based login
-‎
-‎Passwords are hashed with bcrypt
-‎
-‎Role-based enum: employee, manager, admin, hr, intern
-‎
-‎•Endpoints:
-‎
-‎| Method	| Route |	Description|
-|--------|-------|------------|
-| ‎POST	| /api/users | 	Create new user |
-| ‎POST	| /api/users/login | 	Login and get JWT |
-| ‎GET	| /api/users | 	Get all users |
-| ‎GET	| /api/users/:id	 | Get single user by ID |
-| ‎PUT	| /api/users/:id	 | Update user info |
-| ‎DELETE	| /api/users/:id | 	Delete user |
-‎
-‎-  Task Management
-‎
-‎Features: Create tasks, assign to employees, update status, retrieve tasks for a user
-‎
-‎Linked tasks to real user IDs using populate()
-‎
-‎• Endpoints:
-‎
-|  Method	| Route | 	Description |
-|---------|-------|--------------|
-|‎POST	 | /api/tasks | 	Create a new task
-| ‎GET	| /api/tasks/:employeeId| 	Get tasks for a specific employee (populates assignedTo info)
-| ‎PUT	| /api/tasks/:id | 	Update task status
-‎
-- Progress Tracker
-‎
-‎Features: Add progress updates to a task, view all progress for a task
-‎
-‎Progress linked to tasks and updatedBy users
-‎
-‎Protected by JWT middleware
-‎
-‎• Endpoints:
-‎
-‎| Method	|Route| 	Description |
-|--------|-----|--------------|
-| ‎POST	 | /api/progress | 	Add progress for a task (requires auth)
-| ‎GET	| /api/progress/:taskId | 	Get all progress entries for a task (requires auth)
-‎
-‎-File Upload
-‎
-‎Features: Upload files (documents/images)
-‎
-‎File types allowed: .jpg, .png, .pdf, .txt
-‎
-‎Stored in /uploads folder
-‎
-‎Linked to user who uploaded (uploadedBy)
-‎
-‎Protected by JWT middleware
-‎
-‎• Endpoints:
-‎
-‎°
-| Method | 	Route | 	Description | 
-|--------|-------|--------------|
-| ‎POST	 | /api/upload | 	Upload a file (requires auth, file field in form-data)
-‎
-- Event management 
-### User Management  
+### API Endpoints
+
+---
+
+#### 🧑‍💼 User Management  
 **Features:** Create, read, update, delete users (CRUD)  
 **Authentication:** JWT-based login  
 **Password Hashing:** bcrypt  
@@ -250,4 +183,45 @@ Server running on http://localhost:3000
 | GET | /api/users/:id | Get single user by ID |
 | PUT | /api/users/:id | Update user info |
 | DELETE | /api/users/:id | Delete user |
+
+---
+
+#### 📋 Task Management  
+**Features:** Create tasks, assign to employees, update status, retrieve tasks for a user  
+Linked tasks to real user IDs using `populate()`  
+
+**Endpoints:**
+
+| Method | Route | Description |
+|--------|--------|-------------|
+| POST | /api/tasks | Create a new task |
+| GET | /api/tasks/:employeeId | Get tasks for a specific employee (populates assignedTo info) |
+| PUT | /api/tasks/:id | Update task status |
+
+---
+
+#### 📈 Progress Tracker  
+**Features:** Add progress updates to a task, view all progress for a task  
+Progress linked to tasks and updatedBy users  
+Protected by JWT middleware  
+
+**Endpoints:**
+
+| Method | Route | Description |
+|--------|--------|-------------|
+| POST | /api/progress | Add progress for a task (requires auth) |
+| GET | /api/progress/:taskId | Get all progress entries for a task (requires auth) |
+
+---
+
+#### 📁 File Upload  
+**Features:** Upload files (documents/images)  
+**Allowed File Types:** `.jpg`, `.png`, `.pdf`, `.txt`  
+**Storage Location:** `/uploads` folder  
+**Linked to:** user who uploaded (uploadedBy)  
+**Security:** Protected by JWT middleware  
+
+ #### Event management 
+ **features:** HR can manage official events (create,edit,delete)
+Employees can view upcoming events.
 
