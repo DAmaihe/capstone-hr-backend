@@ -21,9 +21,11 @@ SmartStart solves these by simplifying the entire process with tools that empowe
 
 
 
+
 ## 🚀Features Implemented
 
- ### 👥 User & Authentication
+ 
+### 👥 User & Authentication
 
 - Secure login and registration for HR/Admin and Employees.
 
@@ -34,11 +36,13 @@ SmartStart solves these by simplifying the entire process with tools that empowe
 - Role-based protection — only HR/Admin can perform certain actions (e.g., managing events or employees).
 
 
+
 ### 📋 Task Management
 
 - HR can create, update, and delete tasks.
 
 - Employees can view assigned tasks and update completion status.
+
 
 
 ### 📈 Progress Tracking
@@ -48,6 +52,7 @@ Employees can report and track progress.
 HR can monitor employee performance via progress endpoints.
 
 
+
  ### 📂 File Uploads
 
 - Secure upload of documents by HR and Employees.
@@ -55,11 +60,13 @@ HR can monitor employee performance via progress endpoints.
 - Uses Multer for file handling.
 
 
+
 ### 📅 Event Management
 
 - HR/Admin can create, update, and delete events.
 
 - Employees can view upcoming events and registration links.
+
 
 
 
@@ -115,7 +122,8 @@ HR can monitor employee performance via progress endpoints.
 
 └── README.md
 
-| Tech stack   |  Tech purpose |
+### Tech stack 
+| Tools   |  Tech purpose |
 |--------------|---------------|
 | Node.js	| Backend runtime |
 | Express.js	| Web framework | 
@@ -129,7 +137,8 @@ HR can monitor employee performance via progress endpoints.
 | Render | Deployment |
 
  
- ### Setup and installation 
+ 
+### Setup and installation 
 
 1. Clone Repository
 
@@ -137,9 +146,11 @@ git clone https://github.com/yourusername/hr-capstone-backend.git
 
 cd hr-capstone-backend
 
+
 2. Install Dependencies
 
 npm install
+
 
 3. Configure Environment Variables
 
@@ -149,6 +160,7 @@ PORT=3000
 MONGO_URI=mongodb://127.0.0.1:27017/capstone_hr
 
 JWT_SECRET=your_secret_key
+
 
 4. Run the Server
 
@@ -163,8 +175,10 @@ nodemon server.js
 Server running on http://localhost:3000
 
 
-Live URL:https://smartstart-backend-8afq.onrender.com
+🌐Live URL:https://smartstart-backend-8afq.onrender.com
+
 Postman link:https://talk2dechendu-7660959.postman.co/workspace/Personal-Workspace~e694064e-5d27-43df-bd5d-d65e8565b2cb/collection/47424540-d5cccaff-e19b-4e99-a4b9-39eb02c9b2fe?action=share&source=copy-link&creator=47424540
+
 
 ### API Endpoints
 
@@ -263,6 +277,7 @@ Protected by JWT middleware
 | Technical Writers | Markdown, Postman, GitHub Wiki |
 
 ---
+
 
 ## 💬 Contributors
 
