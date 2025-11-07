@@ -6,7 +6,7 @@ Developed collaboratively across Backend, Frontend, Mobile, Product Design, Prod
 
 
 
-🎯 ## Product Overview
+ ## 🎯Product Overview
 
 New employees often face challenges such as information overload, poor communication, and unclear expectations during onboarding.
 SmartStart solves these by simplifying the entire process with tools that empower both HR and employees to stay aligned:
@@ -21,7 +21,7 @@ SmartStart solves these by simplifying the entire process with tools that empowe
 
 
 
-🚀 ## Features Implemented
+## 🚀Features Implemented
 
  ### 👥 User & Authentication
 
