@@ -234,5 +234,20 @@ Server running on http://localhost:3000
 | ‎POST	 | /api/upload | 	Upload a file (requires auth, file field in form-data)
 ‎
 - Event management 
+### User Management  
+**Features:** Create, read, update, delete users (CRUD)  
+**Authentication:** JWT-based login  
+**Password Hashing:** bcrypt  
+**Role-based enum:** employee, manager, admin, hr, intern  
 
+**Endpoints:**
+
+| Method | Route | Description |
+|--------|--------|-------------|
+| POST | /api/users | Create new user |
+| POST | /api/users/login | Login and get JWT |
+| GET | /api/users | Get all users |
+| GET | /api/users/:id | Get single user by ID |
+| PUT | /api/users/:id | Update user info |
+| DELETE | /api/users/:id | Delete user |
 
