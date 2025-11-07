@@ -178,12 +178,12 @@ Server running on http://localhost:3000
 ‎
 ‎| Method	| Route |	Description|
 |--------|-------|------------|
-| ‎POST	| /api/users | 	Create new user
-| ‎POST	| /api/users/login | 	Login and get JWT
-| ‎GET	| /api/users | 	Get all users
-| ‎GET	| /api/users/:id	 | Get single user by ID
-| ‎PUT	| /api/users/:id	 | Update user info
-| ‎DELETE	| /api/users/:id | 	Delete user
+| ‎POST	| /api/users | 	Create new user |
+| ‎POST	| /api/users/login | 	Login and get JWT |
+| ‎GET	| /api/users | 	Get all users |
+| ‎GET	| /api/users/:id	 | Get single user by ID |
+| ‎PUT	| /api/users/:id	 | Update user info |
+| ‎DELETE	| /api/users/:id | 	Delete user |
 ‎
 ‎-  Task Management
 ‎
