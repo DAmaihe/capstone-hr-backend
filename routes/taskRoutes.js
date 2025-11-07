@@ -6,7 +6,7 @@ import {
              addChecklistItem,
                toggleChecklistItem,
                   deleteChecklistItem,
-} from "../controllers/taskController.js";
+} from "../Controllers/taskController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
