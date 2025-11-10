@@ -2,14 +2,15 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import authMiddleware from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Get all uploaded documents (optional protection)
-router.get("/", authMiddleware.protect, async (req, res) => {
+// Get all uploaded documents
+router.get("/", protect, authorizeRoles("hr", "manager", "employee"), async (req, res) => {
   try {
     const uploadDir = path.join(__dirname, "../uploads");
 

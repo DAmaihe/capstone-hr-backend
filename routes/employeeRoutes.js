@@ -1,12 +1,13 @@
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
-import { getProfile, updateProfile, getAssignedTasks } from "../Controllers/employeeController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { authorizeRoles } from "../middleware/roleMiddleware.js";
+import { getProfile, updateProfile, getAssignedTasks } from "../controllers/employeeController.js";
 
 const router = express.Router();
 
 // Employee routes
-router.get("/me", authMiddleware.protect, authMiddleware.authorizeRole(["employee"]), getProfile);
-router.put("/me", authMiddleware.protect, authMiddleware.authorizeRole(["employee"]), updateProfile);
-router.get("/me/tasks", authMiddleware.protect, authMiddleware.authorizeRole(["employee"]), getAssignedTasks);
+router.get("/me", protect, authorizeRoles("employee"), getProfile);
+router.put("/me", protect, authorizeRoles("employee"), updateProfile);
+router.get("/me/tasks", protect, authorizeRoles("employee"), getAssignedTasks);
 
 export default router;

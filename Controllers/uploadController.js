@@ -1,6 +1,6 @@
 import multer from "multer";
 import path from "path";
-import File from "../Model/fileModel.js";
+import File from "../model/fileModel.js";
 
 
 const storage = multer.diskStorage({

@@ -1,5 +1,5 @@
-import User from "../Model/userModel.js";
-import Task from "../Model/taskModel.js";
+import User from "../model/userModel.js";
+import Task from "../model/taskModel.js";
 
 export const getProfile = async (req, res) => {
   try {

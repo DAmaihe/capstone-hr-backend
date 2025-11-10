@@ -1,5 +1,5 @@
 // controllers/profileController.js
-import User from "../Model/userModel.js";
+import User from "../model/userModel.js";
 
 /**
  * Get current user profile

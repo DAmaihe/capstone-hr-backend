@@ -1,4 +1,4 @@
-import Event from "../Model/eventModel.js";
+import Event from "../model/eventModel.js";
 
 //(HR/Admin only)
 export const createEvent = async (req, res) => {

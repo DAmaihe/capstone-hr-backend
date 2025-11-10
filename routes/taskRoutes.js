@@ -1,24 +1,25 @@
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
 import {
-        createTask,
-         getTasksByEmployee,
-            updateTaskStatus,
-             addChecklistItem,
-               toggleChecklistItem,
-                  deleteChecklistItem,
+  createTask,
+  getTasksByEmployee,
+  updateTaskStatus,
+  addChecklistItem,
+  toggleChecklistItem,
+  deleteChecklistItem,
 } from "../controllers/taskController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// Task routes
-router.post("/", authMiddleware.protect, createTask);
-router.get("/:employeeId", authMiddleware.protect, getTasksByEmployee);
-router.put("/:id", authMiddleware.protect, updateTaskStatus);
+// Only HR and manager can create tasks
+router.post("/", protect, authorizeRoles("hr", "manager"), createTask);
+router.get("/:employeeId", protect, authorizeRoles("hr", "manager", "employee"), getTasksByEmployee);
+router.put("/:id", protect, authorizeRoles("hr", "manager"), updateTaskStatus);
 
 // Checklist operations
-router.post("/:taskId/checklist", authMiddleware.protect, addChecklistItem);
-router.put("/:taskId/checklist/:itemId", authMiddleware.protect, toggleChecklistItem);
-router.delete("/:taskId/checklist/:itemId", authMiddleware.protect, deleteChecklistItem);
+router.post("/:taskId/checklist", protect, authorizeRoles("hr", "manager"), addChecklistItem); 
+router.put("/:taskId/checklist/:itemId", protect, authorizeRoles("hr", "manager"), toggleChecklistItem); 
+router.delete("/:taskId/checklist/:itemId", protect, authorizeRoles("hr", "manager"), deleteChecklistItem); 
 
 export default router;

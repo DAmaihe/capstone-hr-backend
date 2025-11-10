@@ -1,10 +1,10 @@
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
-import { addProgress, getProgressByTask } from "../Controllers/progressController.js";
+import { addProgress, getProgressByTask } from "../controllers/progressController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", authMiddleware.protect, addProgress);
-router.get("/:taskId", authMiddleware.protect, getProgressByTask);
+router.post("/", protect, addProgress);
+router.get("/:taskId", protect, getProgressByTask);
 
 export default router;

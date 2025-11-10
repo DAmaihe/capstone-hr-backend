@@ -1,12 +1,13 @@
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
-import { getProfile, updateProfile, deleteProfile } from "../Controllers/profileController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { authorizeRoles } from "../middleware/roleMiddleware.js";
+import { getProfile, updateProfile, deleteProfile } from "../controllers/profileController.js";
 
 const router = express.Router();
 
-// Profile routes
-router.get("/me", authMiddleware.protect, getProfile);
-router.put("/update", authMiddleware.protect, updateProfile);
-router.delete("/delete/:id", authMiddleware.protect, authMiddleware.authorizeRole(["admin"]), deleteProfile);
+router.get("/me", protect, getProfile);
+router.put("/update", protect, updateProfile);
+// Only admins can delete a profile
+router.delete("/delete/:id", protect, authorizeRoles("admin"), deleteProfile);
 
 export default router;

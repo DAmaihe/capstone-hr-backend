@@ -1,5 +1,5 @@
-import Progress from "../Model/progressModel.js";
-import Task from "../Model/taskModel.js"; 
+import Progress from "../model/progressModel.js";
+import Task from "../model/taskModel.js"; 
 
 
 export const addProgress = async (req, res) => {

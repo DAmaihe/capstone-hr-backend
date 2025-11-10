@@ -1,13 +1,18 @@
 import express from "express";
-import authMiddleware from "../middleware/authMiddleware.js";
-import { createEvent, getEvents, updateEvent, deleteEvent } from "../Controllers/eventController.js";
+import {
+  createEvent,
+  getEvents,
+  updateEvent,
+  deleteEvent,
+} from "../controllers/eventController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// Event routes
-router.post("/", authMiddleware.protect, authMiddleware.authorizeRole(["HR", "admin"]), createEvent);
-router.get("/", authMiddleware.protect, getEvents);
-router.put("/:id", authMiddleware.protect, authMiddleware.authorizeRole(["HR", "admin"]), updateEvent);
-router.delete("/:id", authMiddleware.protect, authMiddleware.authorizeRole(["HR", "admin"]), deleteEvent);
+router.post("/", protect, authorizeRoles("hr", "manager"), createEvent);
+router.get("/", protect, getEvents);
+router.put("/:id", protect, authorizeRoles("hr", "manager"), updateEvent);
+router.delete("/:id", protect, authorizeRoles("hr", "manager"), deleteEvent);
 
 export default router;
