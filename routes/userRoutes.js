@@ -1,22 +1,24 @@
 import express from "express";
+import authMiddleware from "../middleware/authMiddleware.js";
 import {
-         createUser,
-             loginUser,
-                 getAllUsers,
-                      getUserById,
-                           updateUser,
-                              deleteUser,
-} from "../Controllers/userController.js"; 
-import { protect } from "../middleware/authMiddleware.js";
+  createUser,
+  loginUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+} from "../Controllers/userController.js";
 
-            const router = express.Router();
+const router = express.Router();
 
-                    router.post("/", createUser);        // POST /api/users      -> register / create user
-                     router.post("/login", loginUser);    // POST /api/users/login -> login (returns JWT)
+// Public routes
+router.post("/", createUser);
+router.post("/login", loginUser);
 
-                         router.get("/", protect, getAllUsers);        // GET /api/users
-                              router.get("/:id", protect, getUserById);     // GET /api/users/:id
-                                   router.put("/:id", protect, updateUser);      // PUT /api/users/:id
-                                      router.delete("/:id", protect, deleteUser);   // DELETE /api/users/:id
+// Protected routes
+router.get("/", authMiddleware.protect, getAllUsers);
+router.get("/:id", authMiddleware.protect, getUserById);
+router.put("/:id", authMiddleware.protect, updateUser);
+router.delete("/:id", authMiddleware.protect, deleteUser);
 
 export default router;

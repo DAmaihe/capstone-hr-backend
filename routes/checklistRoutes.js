@@ -1,23 +1,17 @@
 import express from "express";
 import {
-        addChecklistItem,
-         getChecklistByTask,
-             updateChecklistItem,
-                 deleteChecklistItem
+  addChecklistItem,
+  getChecklistByTask,
+  updateChecklistItem,
+  deleteChecklistItem,
 } from "../Controllers/checklistController.js";
 
 const router = express.Router();
 
-
-     router.post("/", addChecklistItem);
-
-
-         router.get("/:taskId", getChecklistByTask);
-
-
-             router.put("/:id", updateChecklistItem);
-
-
-                  router.delete("/:id", deleteChecklistItem);
+// Checklist routes
+router.post("/", addChecklistItem);
+router.get("/:taskId", getChecklistByTask);
+router.put("/:id", updateChecklistItem);
+router.delete("/:id", deleteChecklistItem);
 
 export default router;
