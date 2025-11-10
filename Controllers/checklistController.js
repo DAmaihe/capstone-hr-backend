@@ -1,5 +1,5 @@
-import Checklist from "../models/checklistModel.js";
-import Task from "../models/taskModel.js";
+import Checklist from "../Model/checklistModel.js";
+import Task from "../Model/taskModel.js";
 
 export const addChecklistItem = async (req, res) => {
   try {
