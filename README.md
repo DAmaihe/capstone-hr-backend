@@ -76,13 +76,13 @@ HR can monitor employee performance via progress endpoints.
 📁 Capstone Project HR/
 ├── 📁 Controllers/       # Business logic
 
-│   ├── eventController.js
+│   ├── eventcontroller.js
 
-│   ├── taskController.js
+│   ├── taskcontroller.js
 
-│   ├── userController.js
+│   ├── usercontroller.js
 
-│   └── progressController.js
+│   └── progresscontroller.js
 
 │
 
