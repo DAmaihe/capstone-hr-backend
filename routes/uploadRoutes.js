@@ -1,9 +1,12 @@
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
-import { uploadFile } from "../controllers/uploadController.js"; // Ensure correct function name
+import { uploadFile, getDocuments } from "../controllers/uploadController.js";
+import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
-router.post("/upload", protect, uploadFile);
+router.post("/upload", protect, upload.single("document"), uploadFile);
+
+router.get("/", protect, getDocuments);
 
 export default router;

@@ -13,7 +13,7 @@ const router = express.Router();
 // Only authenticated users can manage checklists
 router.post("/", protect, authorizeRoles("hr", "manager"), addChecklistItem);
 router.get("/:taskId", protect, getChecklistByTask);
-router.put("/:id", protect, authorizeRoles("hr", "manager"), updateChecklistItem);
+router.put("/:id", protect, updateChecklistItem);
 router.delete("/:id", protect, authorizeRoles("hr", "manager"), deleteChecklistItem);
 
 export default router;

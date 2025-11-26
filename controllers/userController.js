@@ -23,9 +23,14 @@ export const createUser = async (req, res) => {
       department: department || "General",
     });
 
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
     res.status(201).json({
       success: true,
       message: "User created successfully",
+      token, // Return token upon registration
       data: {
         _id: newUser._id,
         name: newUser.name,

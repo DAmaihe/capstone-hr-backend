@@ -13,7 +13,7 @@ import {
 const router = express.Router();
 
 // Public routes
-router.post("/", createUser);
+router.post("/register", createUser);
 router.post("/login", loginUser);
 
 // Protected routes

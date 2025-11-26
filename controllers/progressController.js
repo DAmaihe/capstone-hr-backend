@@ -4,11 +4,14 @@ import Task from "../model/taskModel.js";
 
 export const addProgress = async (req, res) => {
   try {
-       const { taskId, userId, status, remarks } = req.body;
+       const { taskId, status, description, progressPercent } = req.body;
+
+        // Use logged-in user
+    const userId = req.user._id;
 
          const task = await Task.findById(taskId);
            if (!task) {
-             return res.status(404).json({ message: "Task not found" });
+              return res.status(404).json({ success: false, message: "Task not found" });
     }   
 
     
@@ -20,6 +23,13 @@ export const addProgress = async (req, res) => {
               progressPercent: 0, 
      });
 
+     if (progress.progressPercent === 0) task.status = "Pending";
+    else if (progress.progressPercent >= 100) task.status = "Completed";
+    else task.status = "In-progress";
+
+    await task.save();
+    
+
               res.status(201).json({
               success: true,
               message: "Progress added successfully!",
@@ -27,9 +37,10 @@ export const addProgress = async (req, res) => {
      });
 
      } catch (error) {
-               res.status(500).json({ message: error.message });
+            console.error("Add progress error:", error);
+                res.status(500).json({ success: false, message: "Server error: " + error.message });
     }
-      };
+};
 
 export const getProgressByTask = async (req, res) => {
   try {
@@ -37,11 +48,12 @@ export const getProgressByTask = async (req, res) => {
 
          const task = await Task.findById(taskId);
            if (!task) {
-             return res.status(404).json({ message: "Task not found" });
+           return res.status(404).json({ success: false, message: "Task not found" });  
     }
 
          const progressEntries = await Progress.find({ task: taskId })
-              .populate("user", "name email role department"); 
+              .populate("updatedBy", "name email role department")
+              .sort({ createdAt: 1 });
 
                res.status(200).json({
                success: true,
@@ -50,6 +62,7 @@ export const getProgressByTask = async (req, res) => {
     });
 
        } catch (error) {
-               res.status(500).json({ message: error.message });
+               console.error("Get progress error:", error);
+    res.status(500).json({ success: false, message: "Server error: " + error.message });
   }
 };
