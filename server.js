@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -16,17 +15,8 @@ import progressRoutes from "./routes/progressRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 
-// Initialize environment variables
+// Load environment variables
 dotenv.config();
-
-// Display current auth mode on startup
-if (process.env.FREE_MODE === "true") {
-  console.log("🟢 Server running in FREE MODE — authentication is disabled!");
-} else {
-  console.log("🔒 Server running in SECURE MODE — authentication is required.");
-}
-
-
 
 // Connect to MongoDB
 connectDB();
@@ -35,9 +25,17 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // Body parser for JSON
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Mount API routes
+// Show auth mode
+if (process.env.FREE_MODE === "true") {
+  console.log("Server running in FREE MODE — authentication is disabled!");
+} else {
+  console.log("Server running in SECURE MODE — authentication is required.");
+}
+
+// API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/hr", hrRoutes);
@@ -49,24 +47,24 @@ app.use("/api/progress", progressRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/messages", messageRoutes);
 
-// Default route for testing
+// Default test route
 app.get("/", (req, res) => {
-  res.send("Capstone Project HR API is running...");
+  res.json({ success: true, message: "Capstone Project HR API is running..." });
 });
 
-// 404 handler for unknown routes
-app.use((req, res, next) => {
+// 404 for unknown routes
+app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("Global Error Handler:", err.stack);
   res.status(500).json({ success: false, message: "Server error" });
 });
 
 // Start server
-const PORT = process.env.PORT || 3000; // Use Render's assigned port if available
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -1,9 +1,9 @@
-// routes/userRoutes.js
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
 import {
   createUser,
   loginUser,
+  getMe,
   getAllUsers,
   getUserById,
   updateUser,
@@ -17,6 +17,7 @@ router.post("/register", createUser);
 router.post("/login", loginUser);
 
 // Protected routes
+router.get("/me", protect, getMe);
 router.get("/", protect, getAllUsers);
 router.get("/:id", protect, getUserById);
 router.put("/:id", protect, updateUser);
