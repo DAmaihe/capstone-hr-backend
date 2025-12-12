@@ -3,6 +3,7 @@ import { protect } from "../middleware/authMiddleware.js";
 import {
   createUser,
   loginUser,
+  googleAuth,
   getMe,
   getAllUsers,
   getUserById,
@@ -15,6 +16,7 @@ const router = express.Router();
 // Public routes
 router.post("/register", createUser);
 router.post("/login", loginUser);
+router.post("/google", googleAuth); // ⭐ NEW GOOGLE AUTH ENDPOINT
 
 // Protected routes
 router.get("/me", protect, getMe);

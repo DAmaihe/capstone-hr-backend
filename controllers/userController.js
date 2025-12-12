@@ -1,6 +1,10 @@
 import User from "../model/userModel.js";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Generate JWT
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role },
@@ -8,7 +12,6 @@ const generateToken = (user) => {
     { expiresIn: "7d" }
   );
 };
-
 
 // REGISTER NEW USER
 export const createUser = async (req, res) => {
@@ -28,8 +31,7 @@ export const createUser = async (req, res) => {
       department: department || "General",
     });
 
-   const token = generateToken(newUser);
-
+    const token = generateToken(newUser);
 
     res.status(201).json({
       success: true,
@@ -68,7 +70,7 @@ export const loginUser = async (req, res) => {
       return res.status(403).json({ success: false, message: "Unauthorized role" });
     }
 
-   const token = generateToken(user);
+    const token = generateToken(user);
 
     res.json({
       success: true,
@@ -85,6 +87,61 @@ export const loginUser = async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// GOOGLE AUTH LOGIN/SIGNUP
+export const googleAuth = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: "No Google token provided" });
+    }
+
+    // Verify Google token
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    // Check if user exists
+    let user = await User.findOne({ email });
+
+    // If not, create new user
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        password: Math.random().toString(36).slice(-8), // dummy password
+        role: "employee",
+        profileImage: picture,
+        department: "General",
+      });
+    }
+
+    const token = generateToken(user);
+
+    res.json({
+      success: true,
+      message: "Google authentication successful",
+      token,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        department: user.department,
+        profileImage: user.profileImage,
+      },
+    });
+
+  } catch (error) {
+    console.error("Google auth error:", error);
+    res.status(500).json({ success: false, message: "Google authentication failed" });
   }
 };
 
@@ -128,7 +185,7 @@ export const updateUser = async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    Object.assign(user, updates); // password will be hashed automatically if changed
+    Object.assign(user, updates);
     await user.save();
 
     res.json({
