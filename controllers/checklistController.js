@@ -1,119 +1,225 @@
 import Checklist from "../model/checklistModel.js";
 import Task from "../model/taskModel.js";
+import Progress from "../model/progressModel.js";
 
-
-const recalcTaskProgress = async (taskId) => {
-  const items = await Checklist.find({ task: taskId });
-
-  if (items.length === 0) {
-    await Task.findByIdAndUpdate(taskId, { progress: 0 });
-    return 0;
-  }
-
-  const completedCount = items.filter((i) => i.completed).length;
-  const progress = Math.round((completedCount / items.length) * 100);
-
-  await Task.findByIdAndUpdate(taskId, { progress });
-
-  return progress;
-};
-
-export const addChecklistItem = async (req, res) => {
+/**
+ * HR — Create checklist template
+ */
+export const createChecklist = async (req, res) => {
   try {
-    const { taskId, title, description } = req.body;
-
-    const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ message: "Task not found" });
-
-    const exists = await Checklist.findOne({ task: taskId, title });
-    if (exists)
-      return res.status(400).json({ message: "Checklist item already exists." });
-
-    const item = await Checklist.create({
-      task: taskId,
-      title,
-      description: description || "",
+    const checklist = await Checklist.create({
+      title: req.body.title,
+      description: req.body.description,
+      department: req.body.department || "All",
+      createdBy: req.user._id,
     });
 
-    // Auto-update progress
-    const progress = await recalcTaskProgress(taskId);
-
-    res.status(201).json({
-      success: true,
-      message: "Checklist item added!",
-      progress,
-      data: item,
+    res.status(201).json({ success: true, data: checklist });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create checklist",
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const getChecklistByTask = async (req, res) => {
+/**
+ * HR — Add task to checklist (template task)
+ */
+export const addTaskToChecklist = async (req, res) => {
   try {
-    const { taskId } = req.params;
-    const items = await Checklist.find({ task: taskId }).populate(
-      "completedBy",
-      "name email"
-    );
+    const task = await Task.create({
+      title: req.body.title,
+      description: req.body.description,
+      checklist: req.params.checklistId,
+    });
 
-    res.status(200).json({ success: true, data: items });
+    res.status(201).json({ success: true, data: task });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to add task",
+    });
   }
 };
 
-export const updateChecklistItem = async (req, res) => {
+/**
+ * HR — Assign checklist to employee
+ */
+export const assignChecklistToEmployee = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { completed } = req.body;
+    const { employeeId } = req.body;
+    const { checklistId } = req.params;
 
-    const item = await Checklist.findById(id);
-    if (!item) return res.status(404).json({ message: "Checklist item not found" });
-
-    if (req.user.role === "employee") {
-      item.completed = completed;
-      item.completedBy = completed ? req.user._id : null;
-      item.completedAt = completed ? new Date() : null;
-    } else {
-      Object.assign(item, req.body);
+    const checklist = await Checklist.findById(checklistId);
+    if (!checklist) {
+      return res.status(404).json({
+        success: false,
+        message: "Checklist not found",
+      });
     }
 
-    await item.save();
+    const tasks = await Task.find({ checklist: checklistId });
+    if (!tasks.length) {
+      return res.status(400).json({
+        success: false,
+        message: "Checklist has no tasks",
+      });
+    }
 
-    //Auto-update task progress
-    const progress = await recalcTaskProgress(item.task);
+    const alreadyAssigned = await Progress.findOne({
+      employee: employeeId,
+      checklist: checklistId,
+    });
 
-    res.status(200).json({
+    if (alreadyAssigned) {
+      return res.status(400).json({
+        success: false,
+        message: "Checklist already assigned to this employee",
+      });
+    }
+
+    const progressDocs = tasks.map(task => ({
+      employee: employeeId,
+      checklist: checklistId,
+      task: task._id,
+      status: "pending",
+    }));
+
+    await Progress.insertMany(progressDocs);
+
+    res.json({
       success: true,
-      message: "Checklist updated!",
-      progress,
-      data: item,
+      message: "Checklist assigned successfully",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Assignment failed",
+    });
   }
 };
 
-export const deleteChecklistItem = async (req, res) => {
+/**
+ * HR — Get all checklist templates
+ */
+export const getAllChecklists = async (req, res) => {
   try {
-    const item = await Checklist.findById(req.params.id);
-    if (!item)
-      return res.status(404).json({ message: "Checklist item not found" });
+    const checklists = await Checklist.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: checklists });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch checklists",
+    });
+  }
+};
 
-    const taskId = item.task;
+/**
+ * HR — View all employees checklist progress
+ */
+export const getAllEmployeesChecklistProgress = async (req, res) => {
+  if (!["hr", "admin"].includes(req.user.role)) {
+    return res.status(403).json({ message: "HR/Admin only" });
+  }
 
-    await item.deleteOne();
+  try {
+    const progress = await Progress.find()
+      .populate("employee", "name email role department")
+      .populate("task", "title")
+      .populate("checklist", "title");
 
-    //Auto-update task progress
-    const progress = await recalcTaskProgress(taskId);
+    const report = {};
 
-    res.status(200).json({
+    progress.forEach(p => {
+      const key = `${p.employee._id}-${p.checklist._id}`;
+
+      if (!report[key]) {
+        report[key] = {
+          employee: p.employee,
+          checklist: p.checklist,
+          totalTasks: 0,
+          completedTasks: 0,
+        };
+      }
+
+      report[key].totalTasks += 1;
+
+      if (p.status === "completed") {
+        report[key].completedTasks += 1;
+      }
+    });
+
+    const result = Object.values(report).map(r => ({
+      employee: r.employee,
+      checklist: r.checklist,
+      totalTasks: r.totalTasks,
+      completedTasks: r.completedTasks,
+      completionPercentage: Math.round(
+        (r.completedTasks / r.totalTasks) * 100
+      ),
+    }));
+
+    res.json({
       success: true,
-      message: "Checklist item deleted",
-      progress,
+      data: result,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate HR dashboard",
+    });
+  }
+};
+
+
+/**
+ * EMPLOYEE — Get own checklist progress
+ */
+export const getEmployeeChecklist = async (req, res) => {
+  try {
+    const progress = await Progress.find({ employee: req.user._id })
+      .populate("task")
+      .populate("checklist");
+
+    res.json({ success: true, data: progress });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to load checklist",
+    });
+  }
+};
+
+/**
+ * EMPLOYEE — Update own task progress
+ */
+export const updateTaskProgress = async (req, res) => {
+  try {
+    const progress = await Progress.findOne({
+      _id: req.params.progressId,
+      employee: req.user._id,
+    });
+
+    if (!progress) {
+      return res.status(404).json({
+        success: false,
+        message: "Progress not found",
+      });
+    }
+
+    progress.status = req.body.status;
+    await progress.save();
+
+    res.json({ success: true, data: progress });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to update progress",
+    });
   }
 };

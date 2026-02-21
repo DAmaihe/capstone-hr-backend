@@ -2,34 +2,43 @@ import mongoose from "mongoose";
 
 const progressSchema = new mongoose.Schema(
   {
-      task: {
-              type: mongoose.Schema.Types.ObjectId,
-                    ref: "Task", // links this progress entry to a task
-                        required: true,
+    employee: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-      description: {
-                     type: String,
-                          required: true, // details about the progress
+
+    checklist: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Checklist",
+      required: true,
     },
-    updatedBy: {
-                 type: mongoose.Schema.Types.ObjectId,
-                     ref: "User", // who updated the progress
-                         required: true,
+
+    task: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Task",
+      required: true,
     },
+
     status: {
-              type: String,
-                     enum: ["Pending", "In-progress", "Completed"], // matches task status
-                          default: "Pending",
+      type: String,
+      enum: ["pending", "in_progress", "completed"],
+      default: "pending",
     },
-    progressPercent: {
-                          type: Number,
-                                min: 0,
-                                    max: 100,
-                                          default: 0,
+
+    completedAt: {
+      type: Date,
     },
   },
-      { timestamps: true }
+  { timestamps: true }
 );
 
-const Progress = mongoose.model("Progress", progressSchema);
-export default Progress;
+// Auto-set completedAt
+progressSchema.pre("save", function (next) {
+  if (this.status === "completed" && !this.completedAt) {
+    this.completedAt = new Date();
+  }
+  next();
+});
+
+export default mongoose.model("Progress", progressSchema);

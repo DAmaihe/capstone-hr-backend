@@ -60,7 +60,13 @@ export const loginUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ success: false, message: "Invalid email or password" });
     }
-
+ // BLOCK GOOGLE ACCOUNTS FROM PASSWORD LOGIN
+    if (user.authType === "google") {
+      return res.status(400).json({
+        success: false,
+        message: "Please login using Google",
+      });
+    }
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(400).json({ success: false, message: "Invalid email or password" });

@@ -1,84 +1,142 @@
-import multer from "multer";
-import path from "path";
 import Document from "../model/documentModel.js";
 
-// ------------------------------
-// Multer configuration
-// ------------------------------
-export const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, "uploads/"), // Ensure this folder exists
-    filename: (req, file, cb) => {
-      const timestamp = Date.now();
-      const cleanName = file.originalname.replace(/\s+/g, "_"); // Remove spaces
-      cb(null, `${timestamp}-${cleanName}`);
-    },
-  }),
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "application/pdf", "text/plain"];
-    if (allowedTypes.includes(file.mimetype)) cb(null, true);
-    else cb(new Error("Invalid file type. Only JPEG, PNG, PDF, and TXT allowed."));
-  },
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
-});
-
-// ------------------------------
-// Upload a document
-// ------------------------------
+/**
+ * ==========================================
+ * EMPLOYEE — Upload Document
+ * ==========================================
+ */
 export const uploadFile = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: "No file uploaded." });
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded.",
+      });
     }
 
-    // Save to MongoDB
+    if (!req.body.documentType) {
+      return res.status(400).json({
+        success: false,
+        message: "Document type is required.",
+      });
+    }
+
     const document = await Document.create({
+      documentType: req.body.documentType,
       originalName: req.file.originalname,
       filename: req.file.filename,
       path: req.file.path,
       mimetype: req.file.mimetype,
       size: req.file.size,
       uploadedBy: req.user._id,
-      workspace: req.user.workspace || null, // Optional for future workspace feature
+      workspace: req.user.workspace || null,
+      status: "Pending Review",
     });
 
-    // Build public URL for frontend
     const fileUrl = `${req.protocol}://${req.get("host")}/${req.file.path}`;
 
     res.status(201).json({
       success: true,
-      message: "File uploaded successfully",
+      message: "Document uploaded successfully",
       data: {
         id: document._id,
+        documentType: document.documentType,
         originalName: document.originalName,
         fileUrl,
-        mimetype: document.mimetype,
         size: document.size,
-        uploadedAt: document.uploadedAt,
-        workspace: document.workspace,
+        status: document.status,
+        uploadedAt: document.createdAt,
       },
     });
   } catch (error) {
-    console.error("Upload document error:", error);
-    res.status(500).json({ success: false, message: "Server error: " + error.message });
+    console.error("Upload error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error: " + error.message,
+    });
   }
 };
 
-// ------------------------------
-// Get all documents (HR/Admin) or own documents (Employee)
-// ------------------------------
+
+/**
+ * ==========================================
+ * GET DOCUMENTS
+ * ==========================================
+ */
 export const getDocuments = async (req, res) => {
   try {
-    // Employees only see their own files
-    const filter = req.user.role === "employee" ? { uploadedBy: req.user._id } : {};
+    const filter =
+      req.user.role === "employee"
+        ? { uploadedBy: req.user._id }
+        : {};
 
     const documents = await Document.find(filter)
-      .sort({ uploadedAt: -1 })
-      .populate("uploadedBy", "name email role"); // Optional: show uploader info
+      .sort({ createdAt: -1 })
+      .populate("uploadedBy", "name email role");
 
-    res.json({ success: true, data: documents });
+    res.status(200).json({
+      success: true,
+      count: documents.length,
+      data: documents,
+    });
   } catch (error) {
     console.error("Get documents error:", error);
-    res.status(500).json({ success: false, message: "Server error: " + error.message });
+    res.status(500).json({
+      success: false,
+      message: "Server error: " + error.message,
+    });
+  }
+};
+
+
+/**
+ * ==========================================
+ * HR — Review Document
+ * ==========================================
+ */
+export const reviewDocument = async (req, res) => {
+  try {
+    if (req.user.role === "employee") {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized",
+      });
+    }
+
+    const { status } = req.body;
+
+    if (!["Approved", "Rejected"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value",
+      });
+    }
+
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Document not found",
+      });
+    }
+
+    document.status = status;
+    document.reviewedBy = req.user._id;
+    document.reviewedAt = new Date();
+
+    await document.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Document ${status} successfully`,
+      data: document,
+    });
+  } catch (error) {
+    console.error("Review error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error: " + error.message,
+    });
   }
 };
