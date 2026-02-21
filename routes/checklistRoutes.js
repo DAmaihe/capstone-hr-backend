@@ -9,7 +9,7 @@ import {
   getEmployeeChecklist,
   updateTaskProgress,
   getAllEmployeesChecklistProgress,
-} from "../Controllers/checklistController.js";
+} from "../controllers/checklistController.js";
 
 const router = express.Router();
 
